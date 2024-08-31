@@ -15,7 +15,7 @@ npm i @rolster/capacitor-otp-manager
 And register the plugin by adding it to you MainActivity's onCreate:
 
 ```java
-import com.rolster.capacitor.device.OtpManagerPlugin;
+import com.rolster.capacitor.otp.OtpManagerPlugin;
 
 public class MainActivity extends BridgeActivity {
   @Override
