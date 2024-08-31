@@ -25,16 +25,16 @@ public class HuaweiBroadcastReceiver extends BroadcastReceiver {
             switch (smsBroadcastStatus.getStatusCode()) {
                 case CommonStatusCodes.SUCCESS -> {
                     if (extras.containsKey(ReadSmsConstant.EXTRA_SMS_MESSAGE)) {
-                        listener.onSMSReceivedSuccess(extras.getString(ReadSmsConstant.EXTRA_SMS_MESSAGE));
+                        listener.onSmsReceivedSuccess(extras.getString(ReadSmsConstant.EXTRA_SMS_MESSAGE));
                     } else {
-                        listener.onSMSReceivedCancel();
+                        listener.onSmsReceivedCancel();
                     }
                 }
                 case CommonStatusCodes.TIMEOUT -> {
-                    listener.onSMSReceivedTimeOut();
+                    listener.onSmsReceivedTimeOut();
                 }
                 default -> {
-                    listener.onSMSReceivedError("Unknown error");
+                    listener.onSmsReceivedError("Unknown error");
                 }
             }
         }

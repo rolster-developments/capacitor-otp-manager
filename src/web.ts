@@ -1,12 +1,8 @@
 import { WebPlugin } from '@capacitor/core';
-import {
-  OtpManagerActivate,
-  OtpManagerPlugin,
-  OtpManagerProps
-} from './definitions';
+import { OtpManagerPlugin, ActivateOptions } from './definitions';
 
 export class OtpManagerPluginWeb extends WebPlugin implements OtpManagerPlugin {
-  public activate(_: OtpManagerProps): Promise<OtpManagerActivate> {
-    return Promise.resolve({ status: 'unnecessary' });
+  public activate(_: ActivateOptions): Promise<void> {
+    return Promise.reject('API services for SMS not available');
   }
 }

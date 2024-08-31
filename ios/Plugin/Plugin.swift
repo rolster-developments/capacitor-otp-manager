@@ -1,11 +1,9 @@
 import Foundation
 import Capacitor
 
-@objc(OtpManager)
-public class OtpManager: CAPPlugin {
-  @objc func activate(_ call: CAPPluginCall) {
-    call.resolve([
-      "status": "unnecessary"
-    ]);
-  }
+@objc(OtpManagerPlugin)
+public class OtpManagerPlugin: CAPPlugin {
+    @objc func activate(_ call: CAPPluginCall) {
+        call.reject("API services for SMS not available");
+    }
 }

@@ -1,32 +1,46 @@
-import { PluginListenerHandle as Handle } from '@capacitor/core';
+import { PluginListenerHandle } from '@capacitor/core';
 
-export type OtpManagerEvent = 'otpReceivedEvent';
-export type OtpManagerActivateStatus = 'success' | 'unnecessary';
-export type OtpManagerStatus =
-  | 'success'
-  | 'failed'
-  | 'timeout'
-  | 'error'
-  | 'canceled';
+export type OtpManagerEvent = 'otpManagerEvent';
 
-export interface OtpManagerProps {
+export interface ActivateOptions {
+  otpSize: number;
   senderCode: string;
 }
 
-export interface OtpManagerActivate {
-  status: OtpManagerActivateStatus;
-}
-
-export interface OtpManagerResult {
-  message: string;
+interface OtpManagerEventSuccess {
   otp: string;
-  status: OtpManagerStatus;
+  sms: string;
+  status: 'otpManagerSuccess';
 }
 
-type OtpManagerCallback = (data: OtpManagerResult) => void;
+interface OtpManagerEventEmpty {
+  sms: string;
+  status: 'otpManagerEmpty';
+}
+
+type OtpManagerFailureStatus =
+  | 'otpManagerCanceled'
+  | 'otpManagerError'
+  | 'otpManagerFailed'
+  | 'otpManagerTimeout';
+
+interface OtpManagerEventFailure {
+  message: string;
+  status: OtpManagerFailureStatus;
+}
+
+type OtpManagerEventResult =
+  | OtpManagerEventSuccess
+  | OtpManagerEventEmpty
+  | OtpManagerEventFailure;
+
+type OtpManagerCallback = (data: OtpManagerEventResult) => void;
 
 export interface OtpManagerPlugin {
-  activate(props: OtpManagerProps): Promise<OtpManagerActivate>;
+  activate(options: ActivateOptions): Promise<void>;
 
-  addListener(event: OtpManagerEvent, callback: OtpManagerCallback): Handle;
+  addListener(
+    event: OtpManagerEvent,
+    callback: OtpManagerCallback
+  ): Promise<PluginListenerHandle>;
 }

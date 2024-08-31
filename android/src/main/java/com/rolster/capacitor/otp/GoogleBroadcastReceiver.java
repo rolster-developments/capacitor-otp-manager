@@ -24,13 +24,13 @@ public class GoogleBroadcastReceiver extends BroadcastReceiver {
             switch (smsRetrieverStatus.getStatusCode()) {
                 case CommonStatusCodes.SUCCESS:
                     Intent consentIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
-                    listener.onSMSReceivedSuccess(consentIntent, "handlerGoogleSMS");
+                    listener.onSmsReceivedSuccess(consentIntent, "handlerGoogleSMS");
                     break;
                 case CommonStatusCodes.TIMEOUT:
-                    listener.onSMSReceivedTimeOut();
+                    listener.onSmsReceivedTimeOut();
                     break;
                 default:
-                    listener.onSMSReceivedError("Unknown error");
+                    listener.onSmsReceivedError("Unknown error");
             }
         }
     }
