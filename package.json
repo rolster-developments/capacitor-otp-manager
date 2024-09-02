@@ -1,7 +1,7 @@
 {
   "name": "@rolster/capacitor-otp-manager",
-  "version": "6.0.1",
-  "description": "Plugin for OTP manager in mobile Android, Huawei and iOS",
+  "version": "6.0.2",
+  "description": "Plugin for OTP manager in mobile Android and Huawei",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",

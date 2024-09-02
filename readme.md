@@ -1,6 +1,6 @@
 # Rolster Capacitor OtpManager
 
-Plugin for OTP manager in mobile Android, Huawei and iOS.
+Plugin for OTP manager in mobile Android and Huawei.
 
 ## Installation
 
