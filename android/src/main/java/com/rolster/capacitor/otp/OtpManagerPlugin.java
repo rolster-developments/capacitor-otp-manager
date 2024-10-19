@@ -110,12 +110,12 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
 
         resetBroadcastReceiver();
 
-        SmsRetriever.getClient(bridge.getActivity())
+        SmsRetriever.getClient(getActivity())
             .startSmsUserConsent(senderCode)
             .addOnSuccessListener(command -> {
                 IntentFilter intent = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
                 broadcastReceiver = new GoogleBroadcastReceiver(this);
-                bridge.getActivity().registerReceiver(broadcastReceiver, intent);
+                getActivity().registerReceiver(broadcastReceiver, intent);
 
                 call.resolve();
             })
@@ -169,7 +169,7 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
 
     private void resetBroadcastReceiver() {
         if (broadcastReceiver != null) {
-            bridge.getActivity().unregisterReceiver(broadcastReceiver);
+            getActivity().unregisterReceiver(broadcastReceiver);
             broadcastReceiver = null;
         }
     }

@@ -5,4 +5,5 @@ const OtpManager = registerPlugin<OtpManagerPlugin>('OtpManager', {
   web: () => import('./web').then((m) => new m.OtpManagerPluginWeb())
 });
 
+export * from './definitions';
 export { OtpManager };
