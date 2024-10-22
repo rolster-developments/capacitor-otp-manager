@@ -3,6 +3,7 @@ package com.rolster.capacitor.otp;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import androidx.activity.result.ActivityResult;
@@ -115,7 +116,7 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
             .addOnSuccessListener(command -> {
                 IntentFilter intent = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
                 broadcastReceiver = new GoogleBroadcastReceiver(this);
-                getActivity().registerReceiver(broadcastReceiver, intent);
+                getActivity().registerReceiver(broadcastReceiver, intent, Context.RECEIVER_EXPORTED);
 
                 call.resolve();
             })
@@ -134,7 +135,7 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
             .addOnSuccessListener(command -> {
                 IntentFilter intent = new IntentFilter(ReadSmsConstant.READ_SMS_BROADCAST_ACTION);
                 broadcastReceiver = new HuaweiBroadcastReceiver(this);
-                getActivity().registerReceiver(broadcastReceiver, intent);
+                getActivity().registerReceiver(broadcastReceiver, intent, Context.RECEIVER_EXPORTED);
 
                 call.resolve();
             })
