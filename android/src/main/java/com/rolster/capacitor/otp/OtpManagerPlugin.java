@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
+
 import androidx.activity.result.ActivityResult;
 
 import com.getcapacitor.JSObject;
@@ -105,7 +107,6 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
         }
     }
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void resolveSmsForGoogle(PluginCall call) {
         String senderCode = call.getString("senderCode");
 
@@ -115,8 +116,7 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
             .startSmsUserConsent(senderCode)
             .addOnSuccessListener(command -> {
                 IntentFilter intent = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-                broadcastReceiver = new GoogleBroadcastReceiver(this);
-                getActivity().registerReceiver(broadcastReceiver, intent, Context.RECEIVER_EXPORTED);
+                registerReceiverSms(new GoogleBroadcastReceiver(this), intent);
 
                 call.resolve();
             })
@@ -125,7 +125,6 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
             });
     }
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void resolveSmsForHuawei(PluginCall call) {
         String senderCode = call.getString("senderCode");
 
@@ -134,8 +133,7 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
         ReadSmsManager.startConsent(getActivity(), senderCode)
             .addOnSuccessListener(command -> {
                 IntentFilter intent = new IntentFilter(ReadSmsConstant.READ_SMS_BROADCAST_ACTION);
-                broadcastReceiver = new HuaweiBroadcastReceiver(this);
-                getActivity().registerReceiver(broadcastReceiver, intent, Context.RECEIVER_EXPORTED);
+                registerReceiverSms(new HuaweiBroadcastReceiver(this), intent);
 
                 call.resolve();
             })
@@ -187,5 +185,16 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
         int status = services.isHuaweiMobileServicesAvailable(getContext());
 
         return status == com.huawei.hms.api.ConnectionResult.SUCCESS;
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void registerReceiverSms(BroadcastReceiver receiver, IntentFilter intent) {
+        broadcastReceiver = receiver;
+    
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getActivity().registerReceiver(receiver, intent, Context.RECEIVER_EXPORTED);
+        } else {
+            getActivity().registerReceiver(receiver, intent);
+        }
     }
 }
