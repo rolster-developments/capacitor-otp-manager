@@ -1,4 +1,4 @@
-package com.rolster.capacitor.otp;
+package com.rolster.capacitor.otp.huawei;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,6 +8,7 @@ import android.os.Bundle;
 import com.huawei.hms.common.api.CommonStatusCodes;
 import com.huawei.hms.support.api.client.Status;
 import com.huawei.hms.support.sms.common.ReadSmsConstant;
+import com.rolster.capacitor.otp.OtpReceiveListener;
 
 public class HuaweiBroadcastReceiver extends BroadcastReceiver {
     private final OtpReceiveListener listener;

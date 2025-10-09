@@ -16,11 +16,6 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.ActivityCallback;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.huawei.hms.api.HuaweiApiAvailability;
-import com.huawei.hms.support.sms.ReadSmsManager;
-import com.huawei.hms.support.sms.common.ReadSmsConstant;
 
 import java.text.MessageFormat;
 import java.util.regex.Matcher;
@@ -32,22 +27,30 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
 
     private BroadcastReceiver broadcastReceiver;
 
+    private OtpManagerResolver otpManagerResolver;
+
+    @Override
+    public void load() {
+        try {
+            String otpManagerResolverClass = BuildConfig.IS_HMS ?
+                "com.rolster.capacitor.otp.huawei.HuaweiOtpManagerResolver" :
+                "com.rolster.capacitor.otp.google.GoogleOtpManagerResolver";
+            
+            otpManagerResolver = (OtpManagerResolver) Class.forName(otpManagerResolverClass)
+                    .getConstructor()
+                    .newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Error inicializando StoreVerifyServices", e);
+        }
+    }
+
     @PluginMethod()
     public void activate(PluginCall call) {
+        resetBroadcastReceiver();
+
+        otpManagerResolver.execute(this, getActivity(), call);
+
         pluginCall = call;
-
-        if (hasHuaweiServicesAvailable()) {
-            resolveSmsForHuawei(call);
-            return;
-        }
-
-        if (hasGoogleServicesAvailable()) {
-            resolveSmsForGoogle(call);
-            return;
-        }
-
-        pluginCall = null;
-        call.reject("API services for SMS not available");
     }
 
     @Override
@@ -90,10 +93,22 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
         notifyListeners("otpManagerEvent", result);
     }
 
+    @Override()
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    public void registerReceiverSms(BroadcastReceiver receiver, IntentFilter intent) {
+        broadcastReceiver = receiver;
+    
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getActivity().registerReceiver(receiver, intent, Context.RECEIVER_EXPORTED);
+        } else {
+            getActivity().registerReceiver(receiver, intent);
+        }
+    }
+
     @ActivityCallback
     private void handlerGoogleSMS(PluginCall call, ActivityResult activityResult) {
         if (activityResult.getResultCode() == Activity.RESULT_OK) {
-            String sms = activityResult.getData().getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+            String sms = activityResult.getData().getStringExtra("com.google.android.gms.auth.api.phone.EXTRA_SMS_MESSAGE");
             int otpSize = call.getInt("otpSize");
 
             resolveOtpFromSMS(sms, otpSize);
@@ -105,41 +120,6 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
 
             notifyListeners("otpManagerEvent", result);
         }
-    }
-
-    private void resolveSmsForGoogle(PluginCall call) {
-        String senderCode = call.getString("senderCode");
-
-        resetBroadcastReceiver();
-
-        SmsRetriever.getClient(getActivity())
-            .startSmsUserConsent(senderCode)
-            .addOnSuccessListener(command -> {
-                IntentFilter intent = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-                registerReceiverSms(new GoogleBroadcastReceiver(this), intent);
-
-                call.resolve();
-            })
-            .addOnFailureListener(error -> {
-                call.reject(error.getMessage());
-            });
-    }
-
-    private void resolveSmsForHuawei(PluginCall call) {
-        String senderCode = call.getString("senderCode");
-
-        resetBroadcastReceiver();
-
-        ReadSmsManager.startConsent(getActivity(), senderCode)
-            .addOnSuccessListener(command -> {
-                IntentFilter intent = new IntentFilter(ReadSmsConstant.READ_SMS_BROADCAST_ACTION);
-                registerReceiverSms(new HuaweiBroadcastReceiver(this), intent);
-
-                call.resolve();
-            })
-            .addOnFailureListener(error -> {
-                call.reject(error.getMessage());
-            });
     }
 
     private String requestOtpFromSMS(String sms, int otpSize) {
@@ -170,31 +150,6 @@ public class OtpManagerPlugin extends Plugin implements OtpReceiveListener {
         if (broadcastReceiver != null) {
             getActivity().unregisterReceiver(broadcastReceiver);
             broadcastReceiver = null;
-        }
-    }
-
-    private boolean hasGoogleServicesAvailable() {
-        GoogleApiAvailability services = GoogleApiAvailability.getInstance();
-        int status = services.isGooglePlayServicesAvailable(getContext());
-
-        return status == com.google.android.gms.common.ConnectionResult.SUCCESS;
-    }
-
-    private boolean hasHuaweiServicesAvailable() {
-        HuaweiApiAvailability services = HuaweiApiAvailability.getInstance();
-        int status = services.isHuaweiMobileServicesAvailable(getContext());
-
-        return status == com.huawei.hms.api.ConnectionResult.SUCCESS;
-    }
-
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
-    private void registerReceiverSms(BroadcastReceiver receiver, IntentFilter intent) {
-        broadcastReceiver = receiver;
-    
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getActivity().registerReceiver(receiver, intent, Context.RECEIVER_EXPORTED);
-        } else {
-            getActivity().registerReceiver(receiver, intent);
         }
     }
 }

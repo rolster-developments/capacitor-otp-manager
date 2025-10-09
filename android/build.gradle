@@ -3,10 +3,10 @@ ext {
     androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.6.1'
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.1.5'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.5.1'
-    rolsterGooglePlayServicesAuthVersion = project.hasProperty('rolsterGooglePlayServicesAuthVersion') ? rootProject.ext.rolsterGooglePlayServicesAuthVersion : '20.6.0'
-    rolsterGooglePlayServicesAuthPhoneVersion = project.hasProperty('rolsterGooglePlayServicesAuthPhoneVersion') ? rootProject.ext.rolsterGooglePlayServicesAuthPhoneVersion : '18.0.1'
-    rolsterHuaweiHmsServicesVersion = project.hasProperty('rolsterHuaweiHmsServicesVersion') ? rootProject.ext.rolsterHuaweiHmsServicesVersion : '6.4.0.303'
-    rolsterHuaweiHmsServicesHwidVersion = project.hasProperty('rolsterHuaweiHmsServicesHwidVersion') ? rootProject.ext.rolsterHuaweiHmsServicesHwidVersion : '5.1.0.301'
+    rolsterGooglePlayServicesAuthVersion = project.hasProperty('rolsterGooglePlayServicesAuthVersion') ? rootProject.ext.rolsterGooglePlayServicesAuthVersion : '21.4.0'
+    rolsterGooglePlayServicesAuthPhoneVersion = project.hasProperty('rolsterGooglePlayServicesAuthPhoneVersion') ? rootProject.ext.rolsterGooglePlayServicesAuthPhoneVersion : '18.1.0'
+    rolsterHuaweiHmsServicesVersion = project.hasProperty('rolsterHuaweiHmsServicesVersion') ? rootProject.ext.rolsterHuaweiHmsServicesVersion : '6.13.0.303'
+    rolsterHuaweiHmsServicesHwidVersion = project.hasProperty('rolsterHuaweiHmsServicesHwidVersion') ? rootProject.ext.rolsterHuaweiHmsServicesHwidVersion : '6.14.0.300'
 }
 
 buildscript {
@@ -18,7 +18,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
+        classpath 'com.android.tools.build:gradle:8.7.2'
     }
 }
 
@@ -26,13 +26,16 @@ apply plugin: 'com.android.library'
 
 android {
     namespace "com.rolster.capacitor.otp"
-    compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 34
+    compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 35
     defaultConfig {
-        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 22
-        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 34
-        versionCode 1
-        versionName "6.0.0"
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 23
+        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 35
+        versionCode 11
+        versionName "7.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildFeatures {
+        buildConfig true
     }
     buildTypes {
         release {
@@ -46,6 +49,17 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+    flavorDimensions "store"
+    productFlavors {
+        google {
+            dimension "store"
+            buildConfigField "boolean", "IS_HMS", "false"
+        }
+        huawei {
+            dimension "store"
+            buildConfigField "boolean", "IS_HMS", "true"
+        }
     }
 }
 
@@ -61,12 +75,11 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
-    implementation "com.google.android.gms:play-services-auth:$rolsterGooglePlayServicesAuthVersion"
-    implementation "com.google.android.gms:play-services-auth-api-phone:$rolsterGooglePlayServicesAuthPhoneVersion"
+    googleImplementation "com.google.android.gms:play-services-auth:$rolsterGooglePlayServicesAuthVersion"
+    googleImplementation "com.google.android.gms:play-services-auth-api-phone:$rolsterGooglePlayServicesAuthPhoneVersion"
     huaweiImplementation "com.huawei.hms:base:$rolsterHuaweiHmsServicesVersion"
     huaweiImplementation "com.huawei.hms:hwid:$rolsterHuaweiHmsServicesHwidVersion"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
-
 }
